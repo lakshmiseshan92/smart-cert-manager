@@ -3,12 +3,12 @@ info:
   title: Renew Certificate API
   version: 1.0.0
 servers:
-  - url: https://smart-cert.onrender.com
+  - url: https://smart-cert-api.onrender.com
 paths:
   /renew:
     post:
       summary: Renew a certificate
-      operationId: renewCert
+      operationId: renewCertificate
       requestBody:
         required: true
         content:
@@ -22,10 +22,9 @@ paths:
                   type: string
                 mock:
                   type: boolean
-                  default: true
       responses:
         '200':
-          description: Renewal success
+          description: Mock renewal output
           content:
             application/json:
               schema:

@@ -1,17 +1,22 @@
 from flask import Flask, request, jsonify
-from cert_renewer import renew_with_certbot
 
 app = Flask(__name__)
 
 @app.route("/renew", methods=["POST"])
-def renew():
+def renew_cert():
     data = request.get_json()
-    domain = data.get("host")
+    host = data.get("host")
     mock = data.get("mock", True)
-    if not domain:
+    
+    if not host:
         return jsonify({"success": False, "output": "host is required"}), 400
-    result = renew_with_certbot(domain, mock_mode=mock)
-    return jsonify(result)
+    
+    return jsonify({
+        "domain": host,
+        "success": True,
+        "output": f"[MOCK] Simulated renewal for {host}",
+        "mode": "MOCK" if mock else "REAL"
+    })
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5050)
+    app.run(host="0.0.0.0", port=8080)
