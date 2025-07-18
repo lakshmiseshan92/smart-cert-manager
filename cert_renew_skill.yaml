@@ -1,0 +1,33 @@
+openapi: 3.0.0
+info:
+  title: Renew Certificate Skill
+  version: 1.0.0
+paths:
+  /renew:
+    post:
+      summary: Renew a certificate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                host:
+                  type: string
+                mock:
+                  type: boolean
+      responses:
+        '200':
+          description: Renewal result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  output:
+                    type: string
+                  mode:
+                    type: string
