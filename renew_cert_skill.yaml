@@ -1,9 +1,9 @@
 openapi: 3.0.1
 info:
-  title: Renew Certificate API
+  title: Smart Certificate Manager API
   version: 1.0.0
 servers:
-  - url: https://smart-cert-api.onrender.com
+  - url: https://smart-cert-manager.onrender.com
 paths:
   /renew:
     post:
@@ -22,6 +22,7 @@ paths:
                   type: string
                 mock:
                   type: boolean
+                  default: true
       responses:
         '200':
           description: Mock renewal output

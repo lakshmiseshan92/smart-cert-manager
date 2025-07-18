@@ -1,17 +1,12 @@
 [
   {
-    "name": "Test Cert 1",
-    "host": "expire1.test",
-    "mock_expiry": "Jul 17 12:00:00 2025 GMT"
-  },
-  {
-    "name": "Test Cert 3",
+    "name": "Cert A",
     "host": "expire3.test",
-    "mock_expiry": "Oct 16 07:29:36 2025 GMT"
+    "mock_expiry": "Jul 25 12:00:00 2025 GMT"
   },
   {
-    "name": "Test Cert 10",
+    "name": "Cert B",
     "host": "expire10.test",
-    "mock_expiry": "Jul 26 12:00:00 2025 GMT"
+    "mock_expiry": "Jul 28 12:00:00 2025 GMT"
   }
 ]
