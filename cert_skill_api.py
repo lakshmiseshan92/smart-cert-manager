@@ -5,12 +5,12 @@ import os
 
 app = Flask(__name__)
 
-CERTS_FILE = os.path.join(os.path.dirname(__file__), "certs.json")
-LOG_FILE = os.path.join(os.path.dirname(__file__), "renew_log.json")
+LOG_FILE = os.environ.get("RENEW_LOG_PATH", "/tmp/renew_log.json")
+CERTS_FILE = os.environ.get("CERTS_PATH", os.path.join(os.path.dirname(__file__), "certs.json"))
 
 # 🔍 Debug output for Render logs
-print(f"✅ Current working directory: {os.getcwd()}")
-print(f"✅ Will write renew_log.json to: {LOG_FILE}")
+print(f"🛠 Writing log to: {LOG_FILE}")
+print(f"📘 Reading certs from: {CERTS_FILE}")
 
 @app.route("/renew", methods=["POST"])
 def renew_cert():
@@ -41,14 +41,22 @@ def renew_cert():
 
         # Always update renew_log.json
         renew_log = {}
-        if os.path.exists(LOG_FILE):
-            with open(LOG_FILE, "r") as f:
-                renew_log = json.load(f)
+        try:
+            if os.path.exists(LOG_FILE):
+                with open(LOG_FILE, "r") as f:
+                    renew_log = json.load(f)
+        except Exception as e:
+            print(f"⚠️ Failed to read existing log: {e}")
 
+        # Always log the renewal attempt
         renew_log[host] = datetime.utcnow().isoformat() + "Z"
 
-        with open(LOG_FILE, "w") as f:
-            json.dump(renew_log, f, indent=2)
+        try:
+            with open(LOG_FILE, "w") as f:
+                json.dump(renew_log, f, indent=2)
+            print(f"✅ Logged renewal for {host}")
+        except Exception as e:
+            print(f"❌ Failed to write log: {e}")
         
         print(f"✅ Updated renew_log.json with {host} at {renew_log[host]}")
 
