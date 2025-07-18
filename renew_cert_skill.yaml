@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: SmartCert API with Link-Based PDF Export
+  title: SmartCert API (with Download Link)
   version: 1.0.0
 servers:
   - url: https://smart-cert-manager.onrender.com
@@ -57,13 +57,13 @@ paths:
                     type: object
                     additionalProperties:
                       type: string
-  /export/pdf:
+  /export/pdf-link:
     get:
-      summary: Return a download link for the PDF report
+      summary: Get link to download PDF report
       operationId: getPdfReportLink
       responses:
         '200':
-          description: Download link for PDF
+          description: Link to the downloadable PDF file
           content:
             application/json:
               schema:

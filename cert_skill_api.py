@@ -1,5 +1,8 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from datetime import datetime, timedelta
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from io import BytesIO
 import os
 import json
 
@@ -28,11 +31,9 @@ def renew_cert():
             with open(CERTS_FILE, "r") as f:
                 certs = json.load(f)
 
-        updated = False
         for cert in certs:
             if cert.get("host") == host:
                 cert["mock_expiry"] = (datetime.utcnow() + timedelta(days=90)).strftime("%b %d %H:%M:%S %Y GMT")
-                updated = True
 
         with open(CERTS_FILE, "w") as f:
             json.dump(certs, f, indent=2)
@@ -66,12 +67,39 @@ def get_log():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
-@app.route("/export/pdf", methods=["GET"])
-def export_pdf():
+@app.route("/export/pdf-link", methods=["GET"])
+def export_pdf_link():
     return jsonify({
         "success": True,
-        "download_link": "https://smart-cert-manager.onrender.com/export/pdf"
+        "download_link": "https://smart-cert-manager.onrender.com/export/pdf-file"
     })
+
+@app.route("/export/pdf-file", methods=["GET"])
+def export_pdf_file():
+    try:
+        buffer = BytesIO()
+        c = canvas.Canvas(buffer, pagesize=letter)
+        c.setFont("Helvetica", 12)
+        c.drawString(100, 750, "SmartCert Certificate Report")
+
+        if os.path.exists(CERTS_FILE):
+            with open(CERTS_FILE, "r") as f:
+                certs = json.load(f)
+        else:
+            certs = []
+
+        y = 720
+        for cert in certs:
+            line = f"{cert['host']} - Expires: {cert.get('mock_expiry', 'unknown')}"
+            c.drawString(100, y, line)
+            y -= 20
+
+        c.save()
+        buffer.seek(0)
+        return send_file(buffer, as_attachment=True, download_name="cert_report.pdf", mimetype="application/pdf")
+
+    except Exception as e:
+        return jsonify({"success": False, "output": f"Failed to generate PDF: {str(e)}"}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
