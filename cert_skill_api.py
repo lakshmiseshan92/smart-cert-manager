@@ -24,18 +24,18 @@ def renew_cert():
             with open(CERTS_FILE, "r") as f:
                 certs = json.load(f)
 
-        # Update expiry
+        # Update expiry if host found
         updated = False
         for cert in certs:
             if cert.get("host") == host:
                 cert["mock_expiry"] = (datetime.utcnow() + timedelta(days=90)).strftime("%b %d %H:%M:%S %Y GMT")
                 updated = True
 
-        if updated:
-            with open(CERTS_FILE, "w") as f:
-                json.dump(certs, f, indent=2)
+        # Save updated certs file
+        with open(CERTS_FILE, "w") as f:
+            json.dump(certs, f, indent=2)
 
-        # Update renew_log.json
+        # Always update renew_log.json
         renew_log = {}
         if os.path.exists(LOG_FILE):
             with open(LOG_FILE, "r") as f:
@@ -49,12 +49,12 @@ def renew_cert():
         return jsonify({
             "domain": host,
             "success": True,
-            "output": f"[MOCK] Simulated renewal for {host}",
+            "output": f"[MOCK] {'Updated' if updated else 'Logged only'} for {host}",
             "mode": "MOCK" if mock else "REAL"
         })
 
     except Exception as e:
-        return jsonify({"success": False, "output": f"Error in /renew: {str(e)}"}), 500
+        return jsonify({"success": False, "output": f"Error: {str(e)}"}), 500
 
 
 if __name__ == "__main__":
