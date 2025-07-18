@@ -1,30 +1,38 @@
-openapi: 3.0.0
+openapi: 3.0.1
 info:
-  title: Renew Certificate Skill
+  title: Renew Certificate API
   version: 1.0.0
+servers:
+  - url: https://smart-cert.onrender.com
 paths:
   /renew:
     post:
       summary: Renew a certificate
+      operationId: renewCert
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - host
               properties:
                 host:
                   type: string
                 mock:
                   type: boolean
+                  default: true
       responses:
         '200':
-          description: Renewal result
+          description: Renewal success
           content:
             application/json:
               schema:
                 type: object
                 properties:
+                  domain:
+                    type: string
                   success:
                     type: boolean
                   output:
