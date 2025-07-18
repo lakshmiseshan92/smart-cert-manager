@@ -1,105 +1,72 @@
-{
-  "version": "1.0",
-  "agent": {
-    "name": "SmartCertAgent",
-    "description": "Auto-renews certificates, shows logs, and exports report on demand",
-    "language": "en"
-  },
-  "tools": [
-    {
-      "name": "Renew Certificate",
-      "type": "webapi",
-      "description": "Renews a certificate via mock mode",
-      "url": "https://smart-cert-manager.onrender.com/renew",
-      "method": "POST",
-      "request": {
-        "body": {
-          "host": "{{host}}",
-          "mock": true
-        }
-      },
-      "responses": {
-        "200": {
-          "output": "{{output}}"
-        }
-      },
-      "outputs": [
-        "domain",
-        "success",
-        "output",
-        "mode"
-      ]
-    },
-    {
-      "name": "Get Renewal Log",
-      "type": "webapi",
-      "description": "Returns the current renew_log.json",
-      "url": "https://smart-cert-manager.onrender.com/log",
-      "method": "GET",
-      "responses": {
-        "200": {
-          "log": "{{log}}"
-        }
-      },
-      "outputs": [
-        "success",
-        "log"
-      ]
-    },
-    {
-      "name": "Export PDF Report",
-      "type": "webapi",
-      "description": "Downloads a PDF summary of cert status",
-      "url": "https://smart-cert-manager.onrender.com/export/pdf",
-      "method": "GET",
-      "responses": {
-        "200": {
-          "output": "Your certificate report is ready: https://smart-cert-manager.onrender.com/export/pdf"
-        }
-      },
-      "outputs": [
-        "output"
-      ]
-    }
-  ],
-  "behavior": [
-    {
-      "name": "Renew and Show Log",
-      "utterances": [
-        "Renew certificate for {host}",
-        "Update certificate {host}",
-        "Renew cert for {host}"
-      ],
-      "variables": [
-        {
-          "name": "host",
-          "type": "string"
-        }
-      ],
-      "actions": [
-        {
-          "type": "tool",
-          "tool_name": "Renew Certificate"
-        },
-        {
-          "type": "tool",
-          "tool_name": "Get Renewal Log"
-        }
-      ]
-    },
-    {
-      "name": "Export PDF On Demand",
-      "utterances": [
-        "Export the certificate report",
-        "Download PDF report",
-        "Get the latest cert PDF"
-      ],
-      "actions": [
-        {
-          "type": "tool",
-          "tool_name": "Export PDF Report"
-        }
-      ]
-    }
-  ]
-}
+openapi: 3.0.1
+info:
+  title: SmartCert API
+  version: 1.0.0
+  description: Full SmartCert API for renewal, log, and PDF export
+servers:
+  - url: https://smart-cert-manager.onrender.com
+paths:
+  /renew:
+    post:
+      summary: Renew a certificate
+      operationId: renewCertificate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - host
+              properties:
+                host:
+                  type: string
+                mock:
+                  type: boolean
+                  default: true
+      responses:
+        '200':
+          description: Mock renewal response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  domain:
+                    type: string
+                  success:
+                    type: boolean
+                  output:
+                    type: string
+                  mode:
+                    type: string
+  /log:
+    get:
+      summary: Get renewal log
+      operationId: getRenewalLog
+      responses:
+        '200':
+          description: Renewal log in JSON format
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  log:
+                    type: object
+                    additionalProperties:
+                      type: string
+  /export/pdf:
+    get:
+      summary: Download certificate PDF report
+      operationId: getPdfReport
+      responses:
+        '200':
+          description: Certificate report in PDF format
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
