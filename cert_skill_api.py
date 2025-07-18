@@ -1,14 +1,10 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify
 from datetime import datetime, timedelta
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from io import BytesIO
 import os
 import json
 
 app = Flask(__name__)
 
-# Safe paths for write access in Render and local dev
 BASE_DIR = os.path.dirname(__file__)
 CERTS_FILE = os.path.join(BASE_DIR, "certs.json")
 LOG_FILE = os.environ.get("RENEW_LOG_PATH", os.path.join(BASE_DIR, "renew_log.json"))
@@ -27,7 +23,6 @@ def renew_cert():
         if not host:
             return jsonify({"success": False, "output": "host is required"}), 400
 
-        # Load certs
         certs = []
         if os.path.exists(CERTS_FILE):
             with open(CERTS_FILE, "r") as f:
@@ -42,7 +37,6 @@ def renew_cert():
         with open(CERTS_FILE, "w") as f:
             json.dump(certs, f, indent=2)
 
-        # Load or create renew_log
         renew_log = {}
         if os.path.exists(LOG_FILE):
             with open(LOG_FILE, "r") as f:
@@ -53,7 +47,6 @@ def renew_cert():
         with open(LOG_FILE, "w") as f:
             json.dump(renew_log, f, indent=2)
 
-        print(f"✅ Logged renewal for {host} at {renew_log[host]}")
         return jsonify({
             "domain": host,
             "success": True,
@@ -62,7 +55,6 @@ def renew_cert():
         })
 
     except Exception as e:
-        print(f"❌ Error in /renew: {e}")
         return jsonify({"success": False, "output": f"Error: {str(e)}"}), 500
 
 @app.route("/log", methods=["GET"])
@@ -76,27 +68,10 @@ def get_log():
 
 @app.route("/export/pdf", methods=["GET"])
 def export_pdf():
-    try:
-        buffer = BytesIO()
-        c = canvas.Canvas(buffer, pagesize=letter)
-        c.setFont("Helvetica", 12)
-        c.drawString(100, 750, "SmartCert Certificate Report")
-
-        with open(CERTS_FILE, "r") as f:
-            certs = json.load(f)
-
-        y = 720
-        for cert in certs:
-            line = f"{cert['host']} - Expires: {cert['mock_expiry']}"
-            c.drawString(100, y, line)
-            y -= 20
-
-        c.save()
-        buffer.seek(0)
-        return send_file(buffer, as_attachment=True, download_name="cert_report.pdf", mimetype="application/pdf")
-
-    except Exception as e:
-        return jsonify({"success": False, "output": f"Failed to export PDF: {str(e)}"}), 500
+    return jsonify({
+        "success": True,
+        "download_link": "https://smart-cert-manager.onrender.com/export/pdf"
+    })
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)

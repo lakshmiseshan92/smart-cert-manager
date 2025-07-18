@@ -1,8 +1,7 @@
 openapi: 3.0.1
 info:
-  title: SmartCert Full API
+  title: SmartCert API with Link-Based PDF Export
   version: 1.0.0
-  description: Full API for certificate renewal, logs, and PDF export
 servers:
   - url: https://smart-cert-manager.onrender.com
 paths:
@@ -26,7 +25,7 @@ paths:
                   default: true
       responses:
         '200':
-          description: Mock renewal response
+          description: Renewal confirmation
           content:
             application/json:
               schema:
@@ -42,11 +41,11 @@ paths:
                     type: string
   /log:
     get:
-      summary: Get renewal log from remote API
-      operationId: getRemoteRenewalLog
+      summary: Get renewal log
+      operationId: getRenewalLog
       responses:
         '200':
-          description: Renewal log in JSON format
+          description: Renewal log in JSON
           content:
             application/json:
               schema:
@@ -60,13 +59,17 @@ paths:
                       type: string
   /export/pdf:
     get:
-      summary: Download certificate PDF report
-      operationId: getPdfReport
+      summary: Return a download link for the PDF report
+      operationId: getPdfReportLink
       responses:
         '200':
-          description: Certificate report in PDF format
+          description: Download link for PDF
           content:
-            application/pdf:
+            application/json:
               schema:
-                type: string
-                format: binary
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  download_link:
+                    type: string
