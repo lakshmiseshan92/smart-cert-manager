@@ -3,6 +3,8 @@ import json
 import requests
 from datetime import datetime
 import os
+from streamlit_autorefresh import st_autorefresh
+
 
 st.set_page_config(layout="wide")
 st.title("📋 Smart Certificate Dashboard")
@@ -11,7 +13,9 @@ CERTS_FILE = "certs.json"
 REMOTE_LOG_URL = "https://smart-cert-manager.onrender.com/log"
 
 # Auto-refresh every 5 seconds
-st.experimental_rerun_interval = 5000
+# st.experimental_rerun_interval = 5000
+st_autorefresh(interval=5000, limit=None, key="refresh")
+
 
 # Load certificate data
 if os.path.exists(CERTS_FILE):

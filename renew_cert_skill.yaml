@@ -1,8 +1,8 @@
 openapi: 3.0.1
 info:
-  title: SmartCert API
+  title: SmartCert Full API
   version: 1.0.0
-  description: Full SmartCert API for renewal, log, and PDF export
+  description: Full API for certificate renewal, logs, and PDF export
 servers:
   - url: https://smart-cert-manager.onrender.com
 paths:
@@ -42,8 +42,8 @@ paths:
                     type: string
   /log:
     get:
-      summary: Get renewal log
-      operationId: getRenewalLog
+      summary: Get renewal log from remote API
+      operationId: getRemoteRenewalLog
       responses:
         '200':
           description: Renewal log in JSON format
